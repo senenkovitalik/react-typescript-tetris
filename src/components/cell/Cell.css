@@ -1,0 +1,13 @@
+.playing-area__cell {
+  width: 25px;
+  height: 25px;
+  border: 1px solid grey;
+  border-radius: 3px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+}
+
+.playing-area__cell_occupied {
+  background-color: aqua;
+}
