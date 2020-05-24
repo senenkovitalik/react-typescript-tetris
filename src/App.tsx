@@ -2,11 +2,13 @@ import React, {useEffect, useState} from 'react';
 import './App.css';
 import {Matrix, Coordinate} from './components/types';
 import Tetromino from './components/Tetromino';
-import {TetrominoType} from './components/Tetromino';
+import {tetrominoTypes} from './components/Tetromino';
 import Row from './components/row/Row';
+import {getRandomInt} from './components/utils';
 
 export default function App() {
   const NUM_ROWS = 20;
+  const NUM_COLLS = 10;
 
   const [matrix, updateMatrix] = useState<Matrix>([
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -26,15 +28,16 @@ export default function App() {
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-    [0, 0, 1, 0, 1, 1, 1, 0, 1, 1],
-    [1, 1, 1, 0, 1, 1, 1, 1, 0, 1]
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   ]);
 
   const getRandomTetromino = (): Tetromino => {
-    const tetronimoTypes: TetrominoType[] = ["I", "O", "L", "S", "Z", "T", "J"];
-    const randomNumber = Math.floor(Math.random() * Math.floor(tetronimoTypes.length));
-    return new Tetromino(tetronimoTypes[randomNumber], 1);
+    const randomNumber = getRandomInt(tetrominoTypes.length);
+    const randomCol = getRandomInt(NUM_COLLS);
+
+    return new Tetromino(tetrominoTypes[randomNumber], randomCol, NUM_COLLS);
   };
 
   const [figure, setFigure] = useState<Tetromino>(getRandomTetromino());
@@ -78,6 +81,12 @@ export default function App() {
       row: row + 1,
       col
     }));
+
+    const isEnd = nextBottomCoords.map(({row}) => row === NUM_ROWS).find(x => x === true);
+
+    if (isEnd) {
+      return false;
+    }
 
     const nextMatrixValues = nextBottomCoords.map(({col, row}) => matrix[row < 0 ? 0 : row][col]);
 
