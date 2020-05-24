@@ -40,49 +40,67 @@ export default function App() {
     return new Tetromino(tetrominoTypes[randomNumber], randomCol, NUM_COLLS);
   };
 
-  const [figure, setFigure] = useState<Tetromino>(getRandomTetromino());
+  const [tetromino, setTetromino] = useState<Tetromino>(getRandomTetromino());
 
   useEffect(() => {
     const intervalID = setInterval(() => {
       if (canMoveDown()) {
-        moveFigureDown();
+        moveTetrominoDown();
       } else {
-        setFigure(getRandomTetromino());
+        setTetromino(getRandomTetromino());
       }
     }, 1000);
 
     return () => clearInterval(intervalID);
   });
 
-  const moveFigureDown = () => {
+  const moveTetrominoDown = () => {
+    const newMatrix = [...matrix];
+
+    eraseTetronimoPrevCoords(newMatrix);
+
+    tetromino.moveDown();
+
+    fillTetronimoNextCoords(newMatrix);
+
+    updateMatrix(newMatrix);
+  };
+
+  const moveTetrominoRight = () => {
+    if (canMoveRight()) {
       const newMatrix = [...matrix];
 
-      // fill prev coords
-      figure.coordinates.forEach(({row, col}) => {
-        if (row >= 0 && row < NUM_ROWS) {
-          newMatrix[row][col] = 0;
-        }
-      });
+      eraseTetronimoPrevCoords(newMatrix);
 
-      figure.moveDown();
+      tetromino.moveRight();
 
-      // fill next coords
-      figure.coordinates.forEach(({row, col}) => {
-        if (row >= 0 && row < NUM_ROWS) {
-          newMatrix[row][col] = 1;
-        }
-      });
+      fillTetronimoNextCoords(newMatrix);
 
       updateMatrix(newMatrix);
+    }
+  };
+
+  const moveTetrominoLeft = () => {
+    if (canMoveLeft()) {
+      const newMatrix = [...matrix];
+
+      eraseTetronimoPrevCoords(newMatrix);
+
+      tetromino.moveLeft();
+
+      fillTetronimoNextCoords(newMatrix);
+
+      updateMatrix(newMatrix);
+    }
   };
 
   const canMoveDown = (): boolean => {
-    const nextBottomCoords: Coordinate[] = figure.bottomBorderCoords.map(({col, row}) => ({
+    const nextBottomCoords: Coordinate[] = tetromino.bottomBorderCoords.map(({col, row}) => ({
       row: row + 1,
       col
     }));
 
-    const isEnd = nextBottomCoords.map(({row}) => row === NUM_ROWS).find(x => x === true);
+    const isEnd = nextBottomCoords.map(({row}) => row === NUM_ROWS).includes(true);
 
     if (isEnd) {
       return false;
@@ -93,12 +111,63 @@ export default function App() {
     return !nextMatrixValues.includes(1);
   };
 
+  const canMoveLeft = (): boolean => {
+    const nextLeftCoords: Coordinate[] = tetromino.leftBorderCoords.map(({col, row}) => ({
+      row,
+      col: col - 1
+    }));
+
+    const isEnd = nextLeftCoords.map(({col}) => col === -1).includes(true);
+
+    if (isEnd) {
+      return false;
+    }
+
+    const nextMatrixValues = nextLeftCoords.map(({col, row}) => matrix[row][col]);
+
+    return !nextMatrixValues.includes(1);
+  };
+
+  const canMoveRight = (): boolean => {
+    const nextLeftCoords: Coordinate[] = tetromino.rightBorderCoords.map(({col, row}) => ({
+      row,
+      col: col + 1
+    }));
+
+    const isEnd = nextLeftCoords.map(({col}) => col === NUM_COLLS).includes(true);
+
+    if (isEnd) {
+      return false;
+    }
+
+    const nextMatrixValues = nextLeftCoords.map(({col, row}) => matrix[row][col]);
+
+    return !nextMatrixValues.includes(1);
+  };
+
+  const eraseTetronimoPrevCoords = (newMatrix: Matrix) => {
+    tetromino.coordinates.forEach(({row, col}) => {
+      if (row >= 0 && row < NUM_ROWS) {
+        newMatrix[row][col] = 0;
+      }
+    });
+  };
+
+  const fillTetronimoNextCoords = (newMatrix: Matrix) => {
+    tetromino.coordinates.forEach(({row, col}) => {
+      if (row >= 0 && row < NUM_ROWS) {
+        newMatrix[row][col] = 1;
+      }
+    });
+  };
+
   return (
     <React.Fragment>
       <div className="playing-area">
         {matrix.map((row, i) => <Row key={i} data={row}/>)}
       </div>
-      <button onClick={moveFigureDown}>Play</button>
+      <button onClick={moveTetrominoLeft}>{'<'}</button>
+      <button onClick={moveTetrominoRight}>{'>'}</button>
     </React.Fragment>
   );
 }

@@ -114,7 +114,63 @@ export default class Tetromino {
     return borderCoords;
   }
 
+  get leftBorderCoords(): Coordinate[] {
+    const groupMap = new Map();
+
+    this.coords.forEach(({row, col}) => {
+      if (groupMap.has(row)) {
+        groupMap.set(row, [...groupMap.get(row), col])
+      } else {
+        groupMap.set(row, [col])
+      }
+    });
+
+    const borderCoords: Coordinate[] = [];
+
+    groupMap.forEach((cols, row) => {
+      const leftmostCol = cols.sort((a: number, b: number) => a - b)[0];
+      borderCoords.push({
+        row,
+        col: leftmostCol
+      });
+    });
+
+    return borderCoords;
+  }
+
+  get rightBorderCoords(): Coordinate[] {
+    const groupMap = new Map();
+
+    this.coords.forEach(({row, col}) => {
+      if (groupMap.has(row)) {
+        groupMap.set(row, [...groupMap.get(row), col])
+      } else {
+        groupMap.set(row, [col])
+      }
+    });
+
+    const borderCoords: Coordinate[] = [];
+
+    groupMap.forEach((cols, row) => {
+      const leftmostCol = cols.sort((a: number, b: number) => a - b)[cols.length - 1];
+      borderCoords.push({
+        row,
+        col: leftmostCol
+      });
+    });
+
+    return borderCoords;
+  }
+
   moveDown(): void {
     this.coords = this.coords.map(({row, col}) => ({row: row + 1, col}));
+  }
+
+  moveRight(): void {
+    this.coords = this.coords.map(({row, col}) => ({row: row, col: col + 1}));
+  }
+
+  moveLeft(): void {
+    this.coords = this.coords.map(({row, col}) => ({row: row, col: col - 1}));
   }
 }
