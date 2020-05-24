@@ -1,74 +1,89 @@
 import {Coordinate} from './types';
 
-export type TetrominoType = 'I' | 'O' | 'L' | 'S' | 'Z' | 'T' | 'J';
+type TetrominoType = 'I' | 'O' | 'L' | 'S' | 'Z' | 'T' | 'J';
+
+export const tetrominoTypes: TetrominoType[] = ["I", "O", "L", "S", "Z", "T", "J"];
 
 export default class Tetromino {
   type: TetrominoType;
-  startCol: number;
+  startCol: number = 0;
   coords: Coordinate[] = [];
+  num_colls: number;
 
-  constructor(type: TetrominoType, startCol: number) {
+  constructor(type: TetrominoType, initCol: number, num_colls: number) {
     this.type = type;
-    this.startCol = startCol;
+    this.num_colls = num_colls;
 
     switch (type) {
       case "I":
+        this.startCol = this.calculateStartCol(initCol, 4);
         this.coords = [
-          {row: -1, col: startCol},
-          {row: -1, col: startCol + 1},
-          {row: -1, col: startCol + 2},
-          {row: -1, col: startCol + 3},
+          {row: -1, col: this.startCol},
+          {row: -1, col: this.startCol + 1},
+          {row: -1, col: this.startCol + 2},
+          {row: -1, col: this.startCol + 3},
         ];
         break;
       case "O":
+        this.startCol = this.calculateStartCol(initCol, 2);
         this.coords = [
-          {row: -2, col: startCol},
-          {row: -1, col: startCol},
-          {row: -2, col: startCol + 1},
-          {row: -1, col: startCol + 1},
+          {row: -2, col: this.startCol},
+          {row: -1, col: this.startCol},
+          {row: -2, col: this.startCol + 1},
+          {row: -1, col: this.startCol + 1},
         ];
         break;
       case "L":
+        this.startCol = this.calculateStartCol(initCol, 3);
         this.coords = [
-          {row: -2, col: startCol},
-          {row: -1, col: startCol},
-          {row: -2, col: startCol + 1},
-          {row: -2, col: startCol + 2},
+          {row: -2, col: this.startCol},
+          {row: -1, col: this.startCol},
+          {row: -2, col: this.startCol + 1},
+          {row: -2, col: this.startCol + 2},
         ];
         break;
       case "S":
+        this.startCol = this.calculateStartCol(initCol, 3);
         this.coords = [
-          {row: -1, col: startCol},
-          {row: -1, col: startCol + 1},
-          {row: -2, col: startCol + 1},
-          {row: -2, col: startCol + 2},
+          {row: -1, col: this.startCol},
+          {row: -1, col: this.startCol + 1},
+          {row: -2, col: this.startCol + 1},
+          {row: -2, col: this.startCol + 2},
         ];
         break;
       case "Z":
+        this.startCol = this.calculateStartCol(initCol, 3);
         this.coords = [
-          {row: -2, col: startCol},
-          {row: -2, col: startCol+1},
-          {row: -1, col: startCol+1},
-          {row: -1, col: startCol+2},
+          {row: -2, col: this.startCol},
+          {row: -2, col: this.startCol+1},
+          {row: -1, col: this.startCol+1},
+          {row: -1, col: this.startCol+2},
         ];
         break;
       case "T":
+        this.startCol = this.calculateStartCol(initCol, 3);
         this.coords = [
-          {row: -2, col: startCol},
-          {row: -2, col: startCol+1},
-          {row: -2, col: startCol+2},
-          {row: -1, col: startCol+1},
+          {row: -2, col: this.startCol},
+          {row: -2, col: this.startCol+1},
+          {row: -2, col: this.startCol+2},
+          {row: -1, col: this.startCol+1},
         ];
         break;
       case "J":
+        this.startCol = this.calculateStartCol(initCol, 3);
         this.coords = [
-          {row: -2, col: startCol},
-          {row: -1, col: startCol},
-          {row: -1, col: startCol+1},
-          {row: -1, col: startCol+2},
+          {row: -2, col: this.startCol},
+          {row: -1, col: this.startCol},
+          {row: -1, col: this.startCol+1},
+          {row: -1, col: this.startCol+2},
         ];
         break;
     }
+  }
+
+  private calculateStartCol(initCol: number, length: number) {
+    const delta = initCol + length - this.num_colls;
+    return delta > 0 ? initCol - delta : initCol;
   }
 
   get coordinates(): Coordinate[] {
