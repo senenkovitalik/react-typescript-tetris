@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
 import {Matrix, Coordinate} from './components/types';
-import Tetromino from './components/Tetromino';
+import TetrominoFactory, {Tetromino} from './components/Tetromino';
 import {tetrominoTypes} from './components/Tetromino';
 import Row from './components/row/Row';
 import {getRandomInt} from './components/utils';
@@ -9,6 +9,8 @@ import {getRandomInt} from './components/utils';
 export default function App() {
   const NUM_ROWS = 20;
   const NUM_COLS = 10;
+
+  const factory = new TetrominoFactory(NUM_COLS);
 
   const [matrix, updateMatrix] = useState<Matrix>([
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -37,7 +39,7 @@ export default function App() {
     const randomNumber = getRandomInt(tetrominoTypes.length);
     const randomCol = getRandomInt(NUM_COLS);
 
-    return new Tetromino(tetrominoTypes[randomNumber], randomCol, NUM_COLS);
+    return factory.createTetromino(/*tetrominoTypes[randomNumber]*/ "T", randomCol);
   };
 
   const [tetromino, setTetromino] = useState<Tetromino>(getRandomTetromino());
@@ -51,7 +53,7 @@ export default function App() {
       } else {
         setTetromino(getRandomTetromino());
       }
-    }, 1000);
+    }, 700);
 
     return () => clearInterval(intervalID);
   });
@@ -96,6 +98,10 @@ export default function App() {
       updateMatrix(newMatrix);
       setActionPerformedState(true);
     }
+  };
+
+  const rotateRight = () => {
+    tetromino.rotateRight()
   };
 
   const canMoveDown = (): boolean => {
@@ -172,6 +178,7 @@ export default function App() {
       </div>
       <button onClick={moveTetrominoLeft}>{'<'}</button>
       <button onClick={moveTetrominoRight}>{'>'}</button>
+      <button onClick={rotateRight}>{'rotate >'}</button>
     </React.Fragment>
   );
 }
