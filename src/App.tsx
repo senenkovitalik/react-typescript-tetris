@@ -1,63 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
+import {Matrix, Coordinate} from './components/types';
+import Tetromino from './components/Tetromino';
+import {TetrominoType} from './components/Tetromino';
 import Row from './components/row/Row';
-
-type Matrix = number[][];
-
-type Coordinate = {
-  row: number;
-  col: number
-};
-
-class Figure {
-  coords: Coordinate[];
-
-  constructor(coords: Coordinate[]) {
-    this.coords = coords;
-  }
-
-  get coordinates(): Coordinate[] {
-    return this.coords;
-  }
-
-  get bottomBorderCoords(): Coordinate[] {
-    const groupMap = new Map();
-
-    this.coords.forEach(({row, col}) => {
-      if (groupMap.has(col)) {
-        groupMap.set(col, [...groupMap.get(col), row])
-      } else {
-        groupMap.set(col, [row])
-      }
-    });
-
-    const borderCoords: Coordinate[] = [];
-
-    groupMap.forEach((rows, col) => {
-      const lowestRow = rows.sort().reverse()[0];
-      borderCoords.push({
-        row: lowestRow,
-        col: col
-      });
-    });
-
-    return borderCoords;
-  }
-
-  moveDown(): void {
-    this.coords = this.coords.map(({row, col}) => ({row: row + 1, col}));
-  }
-}
 
 export default function App() {
   const NUM_ROWS = 20;
-  const NUM_COLS = 10;
-  const initialFigure = new Figure([
-    {row: -2, col: 1},
-    {row: -2, col: 2},
-    {row: -2, col: 3},
-    {row: -1, col: 3},
-  ]);
 
   const [matrix, updateMatrix] = useState<Matrix>([
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -82,20 +31,30 @@ export default function App() {
     [1, 1, 1, 0, 1, 1, 1, 1, 0, 1]
   ]);
 
-  const [figure, setFigure] = useState<Figure>(initialFigure);
+  const getRandomTetromino = (): Tetromino => {
+    const tetronimoTypes: TetrominoType[] = ["I", "O", "L", "S", "Z", "T", "J"];
+    const randomNumber = Math.floor(Math.random() * Math.floor(tetronimoTypes.length));
+    return new Tetromino(tetronimoTypes[randomNumber], 1);
+  };
 
-  // useEffect(() => {
-  //   // const intervalID = setInterval(() => {
-  //   moveFigureDown();
-  //   // }, 1500);
-  //
-  //   // return () => clearInterval(intervalID);
-  // });
+  const [figure, setFigure] = useState<Tetromino>(getRandomTetromino());
+
+  useEffect(() => {
+    const intervalID = setInterval(() => {
+      if (canMoveDown()) {
+        moveFigureDown();
+      } else {
+        setFigure(getRandomTetromino());
+      }
+    }, 1000);
+
+    return () => clearInterval(intervalID);
+  });
 
   const moveFigureDown = () => {
-    if (canMoveDown()) {
       const newMatrix = [...matrix];
 
+      // fill prev coords
       figure.coordinates.forEach(({row, col}) => {
         if (row >= 0 && row < NUM_ROWS) {
           newMatrix[row][col] = 0;
@@ -104,6 +63,7 @@ export default function App() {
 
       figure.moveDown();
 
+      // fill next coords
       figure.coordinates.forEach(({row, col}) => {
         if (row >= 0 && row < NUM_ROWS) {
           newMatrix[row][col] = 1;
@@ -111,7 +71,6 @@ export default function App() {
       });
 
       updateMatrix(newMatrix);
-    }
   };
 
   const canMoveDown = (): boolean => {
