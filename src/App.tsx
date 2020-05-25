@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
 import {Matrix, Coordinate} from './components/types';
-import TetrominoFactory, {Tetromino} from './components/Tetromino';
-import {tetrominoTypes} from './components/Tetromino';
+import Tetromino from './components/Tetromino/Tetromino';
+import TetrominoFactory from './components/Tetromino/TetrominoFactory';
+import {TETROMINO_TYPES} from './components/Tetromino/constants';
 import Row from './components/row/Row';
 import {getRandomInt} from './components/utils';
 
@@ -36,10 +37,10 @@ export default function App() {
   ]);
 
   const getRandomTetromino = (): Tetromino => {
-    const randomNumber = getRandomInt(tetrominoTypes.length);
+    const randomNumber = getRandomInt(TETROMINO_TYPES.length);
     const randomCol = getRandomInt(NUM_COLS);
 
-    return factory.createTetromino(/*tetrominoTypes[randomNumber]*/ "T", randomCol);
+    return factory.createTetromino(TETROMINO_TYPES[randomNumber], randomCol);
   };
 
   const [tetromino, setTetromino] = useState<Tetromino>(getRandomTetromino());
