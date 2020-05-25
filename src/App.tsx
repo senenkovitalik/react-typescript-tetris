@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
-import {Matrix, Coordinate} from './components/types';
+import {Coordinate, Matrix} from './components/types';
 import Tetromino from './components/Tetromino/Tetromino';
 import TetrominoFactory from './components/Tetromino/TetrominoFactory';
 import {TETROMINO_TYPES} from './components/Tetromino/constants';
@@ -40,7 +40,7 @@ export default function App() {
     const randomNumber = getRandomInt(TETROMINO_TYPES.length);
     const randomCol = getRandomInt(NUM_COLS);
 
-    return factory.createTetromino(TETROMINO_TYPES[randomNumber], randomCol);
+    return factory.createTetromino(/*TETROMINO_TYPES[randomNumber]*/ 'T', randomCol);
   };
 
   const [tetromino, setTetromino] = useState<Tetromino>(getRandomTetromino());
@@ -49,7 +49,7 @@ export default function App() {
   useEffect(() => {
     const intervalID = setInterval(() => {
       if (canMoveDown()) {
-        moveTetrominoDown();
+        moveDown();
         setActionPerformedState(false);
       } else {
         setTetromino(getRandomTetromino());
@@ -59,42 +59,40 @@ export default function App() {
     return () => clearInterval(intervalID);
   });
 
-  const moveTetrominoDown = () => {
+  const moveDown = () => {
     const newMatrix = [...matrix];
 
-    eraseTetrominoPrevCoords(newMatrix);
+    erasePrevCoords(newMatrix);
 
     tetromino.moveDown();
 
-    fillTetrominoNextCoords(newMatrix);
+    fillNextCoords(newMatrix);
 
     updateMatrix(newMatrix);
   };
 
-  const moveTetrominoRight = () => {
+  const moveRight = () => {
     if (!isActionPerformed && canMoveRight()) {
       const newMatrix = [...matrix];
 
-      eraseTetrominoPrevCoords(newMatrix);
-
+      erasePrevCoords(newMatrix);
       tetromino.moveRight();
-
-      fillTetrominoNextCoords(newMatrix);
+      fillNextCoords(newMatrix);
 
       updateMatrix(newMatrix);
       setActionPerformedState(true);
     }
   };
 
-  const moveTetrominoLeft = () => {
+  const moveLeft = () => {
     if (!isActionPerformed && canMoveLeft()) {
       const newMatrix = [...matrix];
 
-      eraseTetrominoPrevCoords(newMatrix);
+      erasePrevCoords(newMatrix);
 
       tetromino.moveLeft();
 
-      fillTetrominoNextCoords(newMatrix);
+      fillNextCoords(newMatrix);
 
       updateMatrix(newMatrix);
       setActionPerformedState(true);
@@ -102,7 +100,14 @@ export default function App() {
   };
 
   const rotateRight = () => {
-    tetromino.rotateRight()
+    const newMatrix = [...matrix];
+
+    erasePrevCoords(newMatrix);
+    tetromino.rotateRight();
+    fillNextCoords(newMatrix);
+
+    updateMatrix(newMatrix);
+    setActionPerformedState(true);
   };
 
   const canMoveDown = (): boolean => {
@@ -156,7 +161,7 @@ export default function App() {
     return !nextMatrixValues.includes(1);
   };
 
-  const eraseTetrominoPrevCoords = (newMatrix: Matrix) => {
+  const erasePrevCoords = (newMatrix: Matrix) => {
     tetromino.coordinates.forEach(({row, col}) => {
       if (row >= 0 && row < NUM_ROWS) {
         newMatrix[row][col] = 0;
@@ -164,7 +169,7 @@ export default function App() {
     });
   };
 
-  const fillTetrominoNextCoords = (newMatrix: Matrix) => {
+  const fillNextCoords = (newMatrix: Matrix) => {
     tetromino.coordinates.forEach(({row, col}) => {
       if (row >= 0 && row < NUM_ROWS) {
         newMatrix[row][col] = 1;
@@ -177,8 +182,8 @@ export default function App() {
       <div className="playing-area">
         {matrix.map((row, i) => <Row key={i} data={row}/>)}
       </div>
-      <button onClick={moveTetrominoLeft}>{'<'}</button>
-      <button onClick={moveTetrominoRight}>{'>'}</button>
+      <button onClick={moveLeft}>{'<'}</button>
+      <button onClick={moveRight}>{'>'}</button>
       <button onClick={rotateRight}>{'rotate >'}</button>
     </React.Fragment>
   );

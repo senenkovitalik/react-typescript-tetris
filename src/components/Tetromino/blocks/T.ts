@@ -16,6 +16,7 @@ export default class T extends Tetromino {
 
   rotateRight(): void {
     switch (this.orientation) {
+      // case letter mean current orientation
       case 'N': {
         this.orientation = SIDES['N'].right;
         const [left, center, right, bottom] = this.coords;
@@ -24,11 +25,26 @@ export default class T extends Tetromino {
       }
       case 'W': {
         this.orientation = SIDES['W'].right;
+        const [up, center, right, bottom] = this.coords;
+        this.coords = [
+          {row: up.row + 1, col: up.col - 1},
+          center,
+          right,
+          bottom
+        ]; // L C R B
         break;
       }
-      case 'S':
+      case 'S': {
         this.orientation = SIDES['S'].right;
+        const [up, left, center, right] = this.coords;
+        this.coords = [
+          up,
+          center,
+          right,
+          {row: left.row + 1, col: left.col + 1}
+        ]; // U C R B
         break;
+      }
       case 'E': {
         this.orientation = SIDES['E'].right;
         const [up, left, center, bottom] = this.coords;
@@ -40,8 +56,6 @@ export default class T extends Tetromino {
         ]; // U L C B
         break;
       }
-      default:
-        this.orientation = SIDES['N'].right;
     }
   }
 
