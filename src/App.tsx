@@ -107,7 +107,16 @@ export default function App() {
     fillNextCoords(newMatrix);
 
     updateMatrix(newMatrix);
-    setActionPerformedState(true);
+  };
+
+  const rotateLeft = () => {
+    const newMatrix = [...matrix];
+
+    erasePrevCoords(newMatrix);
+    tetromino.rotateLeft();
+    fillNextCoords(newMatrix);
+
+    updateMatrix(newMatrix);
   };
 
   const canMoveDown = (): boolean => {
@@ -184,6 +193,7 @@ export default function App() {
       </div>
       <button onClick={moveLeft}>{'<'}</button>
       <button onClick={moveRight}>{'>'}</button>
+      <button onClick={rotateLeft}>{'< rotate'}</button>
       <button onClick={rotateRight}>{'rotate >'}</button>
     </React.Fragment>
   );
