@@ -106,7 +106,5 @@ export default abstract class Tetromino {
     this.coords = this.coords.map(({row, col}) => ({row: row, col: col - 1}));
   }
 
-  abstract rotateLeft(): void
-
-  abstract rotateRight(): void
+  abstract rotate(): void
 }

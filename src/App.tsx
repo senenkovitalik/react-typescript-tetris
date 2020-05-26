@@ -99,21 +99,11 @@ export default function App() {
     }
   };
 
-  const rotateRight = () => {
+  const rotate = () => {
     const newMatrix = [...matrix];
 
     erasePrevCoords(newMatrix);
-    tetromino.rotateRight();
-    fillNextCoords(newMatrix);
-
-    updateMatrix(newMatrix);
-  };
-
-  const rotateLeft = () => {
-    const newMatrix = [...matrix];
-
-    erasePrevCoords(newMatrix);
-    tetromino.rotateLeft();
+    tetromino.rotate();
     fillNextCoords(newMatrix);
 
     updateMatrix(newMatrix);
@@ -193,8 +183,7 @@ export default function App() {
       </div>
       <button onClick={moveLeft}>{'<'}</button>
       <button onClick={moveRight}>{'>'}</button>
-      <button onClick={rotateLeft}>{'< rotate'}</button>
-      <button onClick={rotateRight}>{'rotate >'}</button>
+      <button onClick={rotate}>{'rotate'}</button>
     </React.Fragment>
   );
 }

@@ -13,11 +13,7 @@ export default class O extends Tetromino {
     ];
   }
 
-  rotateRight(): void {
-
-  }
-
-  rotateLeft(): void {
+  rotate(): void {
 
   }
 }

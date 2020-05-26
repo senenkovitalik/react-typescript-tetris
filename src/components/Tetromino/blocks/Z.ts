@@ -12,12 +12,8 @@ export default class Z extends Tetromino {
       {row: -1, col: this.startCol + 2},
     ];
   }
-
-  rotateRight(): void {
-
-  }
-
-  rotateLeft(): void {
+  
+  rotate(): void {
 
   }
 }
