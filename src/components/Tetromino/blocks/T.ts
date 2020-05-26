@@ -1,5 +1,6 @@
 import Tetromino from '../Tetromino';
 import {SIDES} from '../constants';
+import Coordinate from '../../Coordinate/Coordinate';
 
 export default class T extends Tetromino {
   constructor(initCol: number, numCols: number) {
@@ -7,10 +8,10 @@ export default class T extends Tetromino {
 
     this.startCol = this.calculateStartCol(initCol, 3);
     this.coords = [
-      {row: -2, col: this.startCol},
-      {row: -2, col: this.startCol + 1},
-      {row: -2, col: this.startCol + 2},
-      {row: -1, col: this.startCol + 1},
+      new Coordinate(-2, this.startCol),
+      new Coordinate(-2, this.startCol + 1),
+      new Coordinate(-2, this.startCol + 2),
+      new Coordinate(-1, this.startCol + 1),
     ];
   }
 
@@ -19,13 +20,18 @@ export default class T extends Tetromino {
       // case letter mean current orientation
       case 'N': {
         const [left, center, right, bottom] = this.coords;
-        this.coords = [{row: right.row - 1, col: right.col - 1}, left, center, bottom]; // U L C B
+        this.coords = [
+          right.up().left(),
+          left,
+          center,
+          bottom
+        ]; // U L C B
         break;
       }
       case 'W': {
         const [up, center, right, bottom] = this.coords;
         this.coords = [
-          {row: up.row + 1, col: up.col - 1},
+          up.down().left(),
           center,
           right,
           bottom
@@ -38,17 +44,17 @@ export default class T extends Tetromino {
           up,
           center,
           right,
-          {row: left.row + 1, col: left.col + 1}
+          left.down().right()
         ]; // U C R B
         break;
       }
       case 'E': {
         const [up, left, center, bottom] = this.coords;
         this.coords = [
-          {row: left.row - 1, col: left.col + 1},
-          {row: bottom.row - 1, col: bottom.col - 1},
+          left.up().right(),
+          bottom.up().left(),
           center,
-          {row: up.row + 1, col: up.col + 1}
+          up.down().right()
         ]; // U L C B
         break;
       }

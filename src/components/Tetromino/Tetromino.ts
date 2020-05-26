@@ -1,12 +1,12 @@
-import {Coordinate} from '../types';
 import {Orientation, TetrominoType} from './types';
+import Coordinate from '../Coordinate/Coordinate';
 
 export default abstract class Tetromino {
   type: TetrominoType;
   startCol: number = 0;
   coords: Coordinate[] = [];
   numCols: number;
-  orientation: Orientation = "N";
+  orientation: Orientation = 'N';
 
   protected constructor(type: TetrominoType, initCol: number, num_cols: number) {
     this.type = type;
@@ -25,7 +25,7 @@ export default abstract class Tetromino {
   get bottomBorderCoords(): Coordinate[] {
     const groupMap = new Map();
 
-    this.coords.forEach(({row, col}) => {
+    this.coords.forEach(({coordinates: {row, col}}) => {
       if (groupMap.has(col)) {
         groupMap.set(col, [...groupMap.get(col), row])
       } else {
@@ -37,10 +37,7 @@ export default abstract class Tetromino {
 
     groupMap.forEach((rows, col) => {
       const lowestRow = rows.sort((a: number, b: number) => a - b)[rows.length - 1];
-      borderCoords.push({
-        row: lowestRow,
-        col: col
-      });
+      borderCoords.push(new Coordinate(lowestRow, col));
     });
 
     return borderCoords;
@@ -49,7 +46,7 @@ export default abstract class Tetromino {
   get leftBorderCoords(): Coordinate[] {
     const groupMap = new Map();
 
-    this.coords.forEach(({row, col}) => {
+    this.coords.forEach(({coordinates: {row, col}}) => {
       if (groupMap.has(row)) {
         groupMap.set(row, [...groupMap.get(row), col])
       } else {
@@ -61,10 +58,7 @@ export default abstract class Tetromino {
 
     groupMap.forEach((cols, row) => {
       const leftmostCol = cols.sort((a: number, b: number) => a - b)[0];
-      borderCoords.push({
-        row,
-        col: leftmostCol
-      });
+      borderCoords.push(new Coordinate(row, leftmostCol));
     });
 
     return borderCoords;
@@ -73,7 +67,7 @@ export default abstract class Tetromino {
   get rightBorderCoords(): Coordinate[] {
     const groupMap = new Map();
 
-    this.coords.forEach(({row, col}) => {
+    this.coords.forEach(({coordinates: {row, col}}) => {
       if (groupMap.has(row)) {
         groupMap.set(row, [...groupMap.get(row), col])
       } else {
@@ -85,25 +79,22 @@ export default abstract class Tetromino {
 
     groupMap.forEach((cols, row) => {
       const leftmostCol = cols.sort((a: number, b: number) => a - b)[cols.length - 1];
-      borderCoords.push({
-        row,
-        col: leftmostCol
-      });
+      borderCoords.push(new Coordinate(row, leftmostCol));
     });
 
     return borderCoords;
   }
 
   moveDown(): void {
-    this.coords = this.coords.map(({row, col}) => ({row: row + 1, col}));
+    this.coords = this.coords.map(coordinates => coordinates.down());
   }
 
   moveRight(): void {
-    this.coords = this.coords.map(({row, col}) => ({row: row, col: col + 1}));
+    this.coords = this.coords.map(coordinates => coordinates.right());
   }
 
   moveLeft(): void {
-    this.coords = this.coords.map(({row, col}) => ({row: row, col: col - 1}));
+    this.coords = this.coords.map(coordinates => coordinates.left());
   }
 
   abstract rotate(): void

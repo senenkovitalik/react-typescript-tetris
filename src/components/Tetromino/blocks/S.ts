@@ -1,4 +1,5 @@
 import Tetromino from '../Tetromino';
+import Coordinate from '../../Coordinate/Coordinate';
 
 export default class S extends Tetromino {
   constructor(initCol: number, numCols: number) {
@@ -6,10 +7,10 @@ export default class S extends Tetromino {
 
     this.startCol = this.calculateStartCol(initCol, 3);
     this.coords = [
-      {row: -1, col: this.startCol},
-      {row: -1, col: this.startCol + 1},
-      {row: -2, col: this.startCol + 1},
-      {row: -2, col: this.startCol + 2},
+      new Coordinate(-1, this.startCol),
+      new Coordinate(-1, this.startCol + 1),
+      new Coordinate(-2, this.startCol + 1),
+      new Coordinate(-2, this.startCol + 2)
     ];
   }
 

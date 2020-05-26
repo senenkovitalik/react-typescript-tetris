@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
-import {Coordinate, Matrix} from './components/types';
+import {Matrix} from './components/types';
 import Tetromino from './components/Tetromino/Tetromino';
 import TetrominoFactory from './components/Tetromino/TetrominoFactory';
 import {TETROMINO_TYPES} from './components/Tetromino/constants';
 import Row from './components/row/Row';
 import {getRandomInt} from './components/utils';
+import Coordinate from './components/Coordinate/Coordinate';
 
 export default function App() {
   const NUM_ROWS = 20;
@@ -40,7 +41,7 @@ export default function App() {
     const randomNumber = getRandomInt(TETROMINO_TYPES.length);
     const randomCol = getRandomInt(NUM_COLS);
 
-    return factory.createTetromino(/*TETROMINO_TYPES[randomNumber]*/ 'T', randomCol);
+    return factory.createTetromino(TETROMINO_TYPES[randomNumber], randomCol);
   };
 
   const [tetromino, setTetromino] = useState<Tetromino>(getRandomTetromino());
@@ -110,58 +111,59 @@ export default function App() {
   };
 
   const canMoveDown = (): boolean => {
-    const nextBottomCoords: Coordinate[] = tetromino.bottomBorderCoords.map(({col, row}) => ({
-      row: row + 1,
-      col
-    }));
+    const nextCoordsPredicate = ({coordinates: {row, col}}: Coordinate) => new Coordinate(row, col).down();
+    const nextBottomCoords: Coordinate[] = tetromino.bottomBorderCoords.map(nextCoordsPredicate);
 
-    const isEnd = nextBottomCoords.map(({row}) => row === NUM_ROWS).includes(true);
+    const isEnd = nextBottomCoords
+      .map(({coordinates: {row}}) => row === NUM_ROWS)
+      .includes(true);
 
     if (isEnd) {
       return false;
     }
 
-    const nextMatrixValues = nextBottomCoords.map(({col, row}) => matrix[row < 0 ? 0 : row][col]);
+    const nextValuesPredicate = ({coordinates: {col, row}}: Coordinate): number => matrix[row < 0 ? 0 : row][col];
+    const nextMatrixValues = nextBottomCoords.map(nextValuesPredicate);
 
     return !nextMatrixValues.includes(1);
   };
 
   const canMoveLeft = (): boolean => {
-    const nextLeftCoords: Coordinate[] = tetromino.leftBorderCoords.map(({col, row}) => ({
-      row,
-      col: col - 1
-    }));
+    const nextCoordsPredicate = ({coordinates: {row, col}}: Coordinate) => new Coordinate(row, col).left();
+    const nextLeftCoords: Coordinate[] = tetromino.leftBorderCoords.map(nextCoordsPredicate);
 
-    const isEnd = nextLeftCoords.map(({col}) => col === -1).includes(true);
+    const isEnd = nextLeftCoords
+      .map(({coordinates: {col}}) => col === -1)
+      .includes(true);
 
     if (isEnd) {
       return false;
     }
 
-    const nextMatrixValues = nextLeftCoords.map(({col, row}) => matrix[row][col]);
+    const nextMatrixValues = nextLeftCoords.map(({coordinates: {col, row}}) => matrix[row][col]);
 
     return !nextMatrixValues.includes(1);
   };
 
   const canMoveRight = (): boolean => {
-    const nextLeftCoords: Coordinate[] = tetromino.rightBorderCoords.map(({col, row}) => ({
-      row,
-      col: col + 1
-    }));
+    const nextCoordsPredicate = ({coordinates: {row, col}}: Coordinate) => new Coordinate(row, col).right();
+    const nextLeftCoords: Coordinate[] = tetromino.rightBorderCoords.map(nextCoordsPredicate);
 
-    const isEnd = nextLeftCoords.map(({col}) => col === NUM_COLS).includes(true);
+    const isEnd = nextLeftCoords
+      .map(({coordinates: {col}}) => col === NUM_COLS)
+      .includes(true);
 
     if (isEnd) {
       return false;
     }
 
-    const nextMatrixValues = nextLeftCoords.map(({col, row}) => matrix[row][col]);
+    const nextMatrixValues = nextLeftCoords.map(({coordinates: {row, col}}) => matrix[row][col]);
 
     return !nextMatrixValues.includes(1);
   };
 
   const erasePrevCoords = (newMatrix: Matrix) => {
-    tetromino.coordinates.forEach(({row, col}) => {
+    tetromino.coordinates.forEach(({coordinates: {row, col}}) => {
       if (row >= 0 && row < NUM_ROWS) {
         newMatrix[row][col] = 0;
       }
@@ -169,7 +171,7 @@ export default function App() {
   };
 
   const fillNextCoords = (newMatrix: Matrix) => {
-    tetromino.coordinates.forEach(({row, col}) => {
+    tetromino.coordinates.forEach(({coordinates: {row, col}}) => {
       if (row >= 0 && row < NUM_ROWS) {
         newMatrix[row][col] = 1;
       }

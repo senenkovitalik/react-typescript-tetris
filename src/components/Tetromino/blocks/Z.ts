@@ -1,5 +1,6 @@
 import Tetromino from '../Tetromino';
 import {SIDES} from '../constants';
+import Coordinate from '../../Coordinate/Coordinate';
 
 export default class Z extends Tetromino {
   constructor(initCol: number, numCols: number) {
@@ -7,10 +8,10 @@ export default class Z extends Tetromino {
 
     this.startCol = this.calculateStartCol(initCol, 3);
     this.coords = [
-      {row: -2, col: this.startCol},
-      {row: -2, col: this.startCol + 1},
-      {row: -1, col: this.startCol + 1},
-      {row: -1, col: this.startCol + 2},
+      new Coordinate(-2, this.startCol),
+      new Coordinate(-2, this.startCol + 1),
+      new Coordinate(-1, this.startCol + 1),
+      new Coordinate(-1, this.startCol + 2)
     ];
   }
 
@@ -20,30 +21,18 @@ export default class Z extends Tetromino {
       case 'N': {
         const [left, centerUp, centerBottom, right] = this.coords;
         this.coords = [
-          {
-            row: centerUp.row,
-            col: centerUp.col + 1
-          },
+          centerUp.right(),
           centerBottom,
           right,
-          {
-            row: left.row + 2,
-            col: left.col + 1
-          }
+          left.down(2).right()
         ]; // U CL CR B
         break;
       }
       case 'E': {
         const [up, centerLeft, centerRight, bottom] = this.coords;
         this.coords = [
-          {
-            row: up.row,
-            col: up.col - 2
-          },
-          {
-            row: bottom.row - 2,
-            col: bottom.col
-          },
+          up.left(2),
+          bottom.up(2),
           centerLeft,
           centerRight,
         ]; // L CU CB R
@@ -53,31 +42,19 @@ export default class Z extends Tetromino {
         const [left, centerUp, centerBottom, right] = this.coords;
         this.coords = [
           centerUp,
-          {
-            row: left.row + 1,
-            col: left.col
-          },
+          left.down(1),
           centerBottom,
-          {
-            row: right.row + 1,
-            col: right.col - 2
-          }
+          right.down().left(2)
         ]; // U CL CR B
         break;
       }
       case 'W': {
         const [up, centerLeft, centerRight, bottom] = this.coords;
         this.coords = [
-          {
-            row: centerLeft.row - 1,
-            col: centerLeft.col
-          },
+          centerLeft.up(),
           up,
           centerRight,
-          {
-            row: bottom.row - 1,
-            col: bottom.col + 2
-          }
+          bottom.up().right(2)
         ]; // U CL CR B
         break;
       }
