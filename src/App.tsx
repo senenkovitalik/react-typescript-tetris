@@ -41,7 +41,7 @@ export default function App() {
     const randomNumber = getRandomInt(TETROMINO_TYPES.length);
     const randomCol = getRandomInt(NUM_COLS);
 
-    return factory.createTetromino(TETROMINO_TYPES[randomNumber], randomCol);
+    return factory.createTetromino(TETROMINO_TYPES[/*randomNumber*/ 2], randomCol);
   };
 
   const [tetromino, setTetromino] = useState<Tetromino>(getRandomTetromino());
