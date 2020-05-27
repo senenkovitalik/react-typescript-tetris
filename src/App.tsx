@@ -41,17 +41,15 @@ export default function App() {
     const randomNumber = getRandomInt(TETROMINO_TYPES.length);
     const randomCol = getRandomInt(NUM_COLS);
 
-    return factory.createTetromino(TETROMINO_TYPES[/*randomNumber*/ 2], randomCol);
+    return factory.createTetromino(TETROMINO_TYPES[randomNumber], randomCol);
   };
 
   const [tetromino, setTetromino] = useState<Tetromino>(getRandomTetromino());
-  const [isActionPerformed, setActionPerformedState] = useState(false);
 
   useEffect(() => {
     const intervalID = setInterval(() => {
       if (canMoveDown()) {
         moveDown();
-        setActionPerformedState(false);
       } else {
         setTetromino(getRandomTetromino());
       }
@@ -73,7 +71,7 @@ export default function App() {
   };
 
   const moveRight = () => {
-    if (!isActionPerformed && canMoveRight()) {
+    if (canMoveRight()) {
       const newMatrix = [...matrix];
 
       erasePrevCoords(newMatrix);
@@ -81,12 +79,11 @@ export default function App() {
       fillNextCoords(newMatrix);
 
       updateMatrix(newMatrix);
-      setActionPerformedState(true);
     }
   };
 
   const moveLeft = () => {
-    if (!isActionPerformed && canMoveLeft()) {
+    if (canMoveLeft()) {
       const newMatrix = [...matrix];
 
       erasePrevCoords(newMatrix);
@@ -96,7 +93,6 @@ export default function App() {
       fillNextCoords(newMatrix);
 
       updateMatrix(newMatrix);
-      setActionPerformedState(true);
     }
   };
 
