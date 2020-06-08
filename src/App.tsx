@@ -8,7 +8,7 @@ import Row from './components/row/Row';
 import {getRandomInt} from './components/utils';
 import Coordinate from './components/Coordinate/Coordinate';
 
-export default function App() {
+export default function App({count}: {count: number}) {
   const NUM_ROWS = 20;
   const NUM_COLS = 10;
 
@@ -47,16 +47,12 @@ export default function App() {
   const [tetromino, setTetromino] = useState<Tetromino>(getRandomTetromino());
 
   useEffect(() => {
-    const intervalID = setInterval(() => {
       if (canMoveDown()) {
         moveDown();
       } else {
         setTetromino(getRandomTetromino());
       }
-    }, 700);
-
-    return () => clearInterval(intervalID);
-  });
+  }, [count]);
 
   const moveDown = () => {
     const newMatrix = [...matrix];
