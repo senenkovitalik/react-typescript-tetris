@@ -8,7 +8,7 @@ import Row from './components/row/Row';
 import {getRandomInt} from './components/utils';
 import Coordinate from './components/Coordinate/Coordinate';
 
-export default function App({count}: {count: number}) {
+export default function App({count}: { count: number }) {
   const NUM_ROWS = 20;
   const NUM_COLS = 10;
 
@@ -46,24 +46,18 @@ export default function App({count}: {count: number}) {
 
   const [tetromino, setTetromino] = useState<Tetromino>(getRandomTetromino());
 
-  useEffect(() => {
-      if (canMoveDown()) {
-        moveDown();
-      } else {
-        setTetromino(getRandomTetromino());
-      }
-  }, [count]);
-
   const moveDown = () => {
-    const newMatrix = [...matrix];
+    if (canMoveDown()) {
+      const newMatrix = [...matrix];
 
-    erasePrevCoords(newMatrix);
+      erasePrevCoords(newMatrix);
 
-    tetromino.moveDown();
+      tetromino.moveDown();
 
-    fillNextCoords(newMatrix);
+      fillNextCoords(newMatrix);
 
-    updateMatrix(newMatrix);
+      updateMatrix(newMatrix);
+    }
   };
 
   const moveRight = () => {
@@ -183,6 +177,50 @@ export default function App({count}: {count: number}) {
       }
     });
   };
+
+  const handleKeyPress = (event: KeyboardEvent) => {
+    // 65, 37 - left
+    // 68, 39 - right
+    // 87, 38 - rotate
+    // 83, 40 - down
+    // 13 - move down immediately
+
+    switch (event.keyCode) {
+      case 65:
+      case 37:
+        moveLeft();
+        break;
+      case 68:
+      case 39:
+        moveRight();
+        break;
+      case 87:
+      case 38:
+        rotate();
+        break;
+      case 83:
+      case 40:
+        moveDown();
+        break;
+      case 13:
+        moveDownImmediately();
+        break;
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyPress, false);
+
+    return () => document.removeEventListener("keydown", handleKeyPress, false);
+  });
+
+  useEffect(() => {
+    if (canMoveDown()) {
+      moveDown();
+    } else {
+      setTetromino(getRandomTetromino());
+    }
+  }, [count]);
 
   return (
     <React.Fragment>
