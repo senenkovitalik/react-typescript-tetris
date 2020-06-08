@@ -102,6 +102,20 @@ export default function App({count}: {count: number}) {
     updateMatrix(newMatrix);
   };
 
+  const moveDownImmediately = () => {
+    const newMatrix = [...matrix];
+
+    erasePrevCoords(newMatrix);
+
+    while (canMoveDown()) {
+      tetromino.moveDown();
+    }
+
+    fillNextCoords(newMatrix);
+
+    updateMatrix(newMatrix);
+  };
+
   const canMoveDown = (): boolean => {
     const nextCoordsPredicate = ({coordinates: {row, col}}: Coordinate) => new Coordinate(row, col).down();
     const nextBottomCoords: Coordinate[] = tetromino.bottomBorderCoords.map(nextCoordsPredicate);
@@ -178,6 +192,7 @@ export default function App({count}: {count: number}) {
       <button onClick={moveLeft}>{'<'}</button>
       <button onClick={moveRight}>{'>'}</button>
       <button onClick={rotate}>{'rotate'}</button>
+      <button onClick={moveDownImmediately}>{'v'}</button>
     </React.Fragment>
   );
 }
