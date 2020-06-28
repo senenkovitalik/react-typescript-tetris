@@ -1,181 +1,73 @@
 import React, {useEffect, useState} from 'react';
 import './App.css';
-import {Matrix} from './components/types';
 import Tetromino from './components/Tetromino/Tetromino';
 import TetrominoFactory from './components/Tetromino/TetrominoFactory';
 import {TETROMINO_TYPES} from './components/Tetromino/constants';
 import Row from './components/row/Row';
 import {getRandomInt} from './components/utils';
-import Coordinate from './components/Coordinate/Coordinate';
+import Matrix from "./components/Matrix/Matrix";
+
+const ROWS = 20;
+const COLS = 10;
+
+const factory = new TetrominoFactory(COLS);
+const matrix = new Matrix(ROWS, COLS);
 
 export default function App({count}: { count: number }) {
-  const NUM_ROWS = 20;
-  const NUM_COLS = 10;
-
-  const factory = new TetrominoFactory(NUM_COLS);
-
-  const [matrix, updateMatrix] = useState<Matrix>([
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  ]);
+  const [matrixBody, updateMatrixBody] = useState<number[][]>(matrix.body);
 
   const getRandomTetromino = (): Tetromino => {
     const randomNumber = getRandomInt(TETROMINO_TYPES.length);
-    const randomCol = getRandomInt(NUM_COLS);
+    const randomCol = getRandomInt(COLS);
 
     return factory.createTetromino(TETROMINO_TYPES[randomNumber], randomCol);
   };
 
   const [tetromino, setTetromino] = useState<Tetromino>(getRandomTetromino());
 
-  const moveDown = () => {
-    if (canMoveDown()) {
-      const newMatrix = [...matrix];
-
-      erasePrevCoords(newMatrix);
-
-      tetromino.moveDown();
-
-      fillNextCoords(newMatrix);
-
-      updateMatrix(newMatrix);
-    }
-  };
-
   const moveRight = () => {
-    if (canMoveRight()) {
-      const newMatrix = [...matrix];
-
-      erasePrevCoords(newMatrix);
+    if (matrix.canMove(tetromino, "RIGHT")) {
+      matrix.clearCoordinates(tetromino.coordinates);
       tetromino.moveRight();
-      fillNextCoords(newMatrix);
-
-      updateMatrix(newMatrix);
+      matrix.fillCoordinates(tetromino.coordinates);
+      updateMatrixBody(matrix.body);
     }
   };
 
   const moveLeft = () => {
-    if (canMoveLeft()) {
-      const newMatrix = [...matrix];
-
-      erasePrevCoords(newMatrix);
-
+    if (matrix.canMove(tetromino, "LEFT")) {
+      matrix.clearCoordinates(tetromino.coordinates);
       tetromino.moveLeft();
-
-      fillNextCoords(newMatrix);
-
-      updateMatrix(newMatrix);
+      matrix.fillCoordinates(tetromino.coordinates);
+      updateMatrixBody(matrix.body);
     }
   };
 
+  const moveDown = () => {
+    if (matrix.canMove(tetromino, "DOWN")) {
+      matrix.clearCoordinates(tetromino.coordinates);
+      tetromino.moveDown();
+      matrix.fillCoordinates(tetromino.coordinates);
+      updateMatrixBody(matrix.body);
+    }
+  }
+
   const rotate = () => {
-    const newMatrix = [...matrix];
-
-    erasePrevCoords(newMatrix);
+    matrix.clearCoordinates(tetromino.coordinates);
     tetromino.rotate();
-    fillNextCoords(newMatrix);
-
-    updateMatrix(newMatrix);
+    matrix.fillCoordinates(tetromino.coordinates);
+    updateMatrixBody(matrix.body);
   };
 
   const moveDownImmediately = () => {
-    const newMatrix = [...matrix];
+    matrix.clearCoordinates(tetromino.coordinates);
 
-    erasePrevCoords(newMatrix);
-
-    while (canMoveDown()) {
+    while (matrix.canMove(tetromino, "DOWN")) {
       tetromino.moveDown();
     }
 
-    fillNextCoords(newMatrix);
-
-    updateMatrix(newMatrix);
-  };
-
-  const canMoveDown = (): boolean => {
-    const nextCoordsPredicate = ({coordinates: {row, col}}: Coordinate) => new Coordinate(row, col).down();
-    const nextBottomCoords: Coordinate[] = tetromino.bottomBorderCoords.map(nextCoordsPredicate);
-
-    const isEnd = nextBottomCoords
-      .map(({coordinates: {row}}) => row === NUM_ROWS)
-      .includes(true);
-
-    if (isEnd) {
-      return false;
-    }
-
-    const nextValuesPredicate = ({coordinates: {col, row}}: Coordinate): number => matrix[row < 0 ? 0 : row][col];
-    const nextMatrixValues = nextBottomCoords.map(nextValuesPredicate);
-
-    return !nextMatrixValues.includes(1);
-  };
-
-  const canMoveLeft = (): boolean => {
-    const nextCoordsPredicate = ({coordinates: {row, col}}: Coordinate) => new Coordinate(row, col).left();
-    const nextLeftCoords: Coordinate[] = tetromino.leftBorderCoords.map(nextCoordsPredicate);
-
-    const isEnd = nextLeftCoords
-      .map(({coordinates: {col}}) => col === -1)
-      .includes(true);
-
-    if (isEnd) {
-      return false;
-    }
-
-    const nextMatrixValues = nextLeftCoords.map(({coordinates: {col, row}}) => matrix[row][col]);
-
-    return !nextMatrixValues.includes(1);
-  };
-
-  const canMoveRight = (): boolean => {
-    const nextCoordsPredicate = ({coordinates: {row, col}}: Coordinate) => new Coordinate(row, col).right();
-    const nextLeftCoords: Coordinate[] = tetromino.rightBorderCoords.map(nextCoordsPredicate);
-
-    const isEnd = nextLeftCoords
-      .map(({coordinates: {col}}) => col === NUM_COLS)
-      .includes(true);
-
-    if (isEnd) {
-      return false;
-    }
-
-    const nextMatrixValues = nextLeftCoords.map(({coordinates: {row, col}}) => matrix[row][col]);
-
-    return !nextMatrixValues.includes(1);
-  };
-
-  const erasePrevCoords = (newMatrix: Matrix) => {
-    tetromino.coordinates.forEach(({coordinates: {row, col}}) => {
-      if (row >= 0 && row < NUM_ROWS) {
-        newMatrix[row][col] = 0;
-      }
-    });
-  };
-
-  const fillNextCoords = (newMatrix: Matrix) => {
-    tetromino.coordinates.forEach(({coordinates: {row, col}}) => {
-      if (row >= 0 && row < NUM_ROWS) {
-        newMatrix[row][col] = 1;
-      }
-    });
+    matrix.fillCoordinates(tetromino.coordinates);
+    updateMatrixBody(matrix.body);
   };
 
   const handleKeyPress = (event: KeyboardEvent) => {
@@ -215,7 +107,7 @@ export default function App({count}: { count: number }) {
   });
 
   useEffect(() => {
-    if (canMoveDown()) {
+    if (matrix.canMove(tetromino, "DOWN")) {
       moveDown();
     } else {
       setTetromino(getRandomTetromino());
@@ -225,7 +117,7 @@ export default function App({count}: { count: number }) {
   return (
     <React.Fragment>
       <div className="playing-area">
-        {matrix.map((row, i) => <Row key={i} data={row}/>)}
+        {matrixBody.map((row, i) => <Row key={i} data={row}/>)}
       </div>
       <button onClick={moveLeft}>{'<'}</button>
       <button onClick={moveRight}>{'>'}</button>
